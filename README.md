@@ -164,7 +164,7 @@ REACT_APP_SOCKET_URL=http://localhost:5000
 - Authentication (JWT) for admin/driver roles
 
 ## 🎥 Demo Video
-
+Download / Watch Demo Video](./video.mp4)
 [Watch Demo](https://drive.google.com/file/d/1MTQ8c5Ms4sPBK9qy34xdjNxdUAqtClHo/view?usp=drivesdk)
 
 ## Technologies

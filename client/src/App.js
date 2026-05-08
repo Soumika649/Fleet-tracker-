@@ -11,8 +11,8 @@ export default function App() {
   const { drivers, orders, analytics, connected, backendOnline, lastUpdate } = useFleetData();
   const [activeTab, setActiveTab] = useState("map");
   const [clock, setClock] = useState(new Date());
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Live clock
   useEffect(() => {
     const t = setInterval(() => setClock(new Date()), 1000);
     return () => clearInterval(t);
@@ -23,9 +23,9 @@ export default function App() {
   const deliveredOrders = orders.filter((o) => o.status === "Delivered").length;
 
   const tabs = [
-    { id: "map",       label: "Live Map",    icon: "🗺️" },
-    { id: "orders",    label: "Orders",      icon: "📦" },
-    { id: "analytics", label: "Analytics",   icon: "📊" },
+    { id: "map",       label: "Live Map",  icon: "🗺️" },
+    { id: "orders",    label: "Orders",    icon: "📦" },
+    { id: "analytics", label: "Analytics", icon: "📊" },
   ];
 
   return (
@@ -33,17 +33,18 @@ export default function App() {
       {/* ── Top Bar ── */}
       <header className="top-bar">
         <div className="top-bar-left">
+          <button className="hamburger" onClick={() => setSidebarOpen(!sidebarOpen)} aria-label="Toggle sidebar">
+            <span /><span /><span />
+          </button>
           <div className="logo-mark">
             <span className="logo-icon">⬡</span>
             <span className="logo-text">NEXUS<span className="logo-accent">FLEET</span></span>
           </div>
           <div className={`live-badge ${connected ? "live" : "offline"}`}>
             <span className="pulse-dot" />
-            {connected ? "LIVE" : "OFFLINE"}
+            <span className="badge-text">{connected ? "LIVE" : "OFFLINE"}</span>
           </div>
-          {!backendOnline && (
-            <div className="demo-badge">DEMO MODE</div>
-          )}
+          {!backendOnline && <div className="demo-badge">DEMO</div>}
         </div>
 
         <nav className="top-nav">
@@ -51,9 +52,10 @@ export default function App() {
             <button
               key={tab.id}
               className={`nav-btn ${activeTab === tab.id ? "active" : ""}`}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => { setActiveTab(tab.id); setSidebarOpen(false); }}
             >
-              {tab.icon} {tab.label}
+              <span className="nav-icon">{tab.icon}</span>
+              <span className="nav-label">{tab.label}</span>
             </button>
           ))}
         </nav>
@@ -61,7 +63,7 @@ export default function App() {
         <div className="top-bar-right">
           {lastUpdate && (
             <div className="last-update">
-              Updated {lastUpdate.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+              {lastUpdate.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
             </div>
           )}
           <div className="clock">
@@ -73,12 +75,11 @@ export default function App() {
 
       {/* ── Main Layout ── */}
       <div className="main-layout">
-        {/* ── Sidebar ── */}
-        <aside className="sidebar">
-          {/* AI Assistant */}
-          <AIChat drivers={drivers} orders={orders} />
+        {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
 
-          {/* Drivers List */}
+        <aside className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
+          <button className="sidebar-close" onClick={() => setSidebarOpen(false)}>✕</button>
+          <AIChat drivers={drivers} orders={orders} />
           <div className="sidebar-section">
             <div className="section-label">
               DRIVERS
@@ -91,9 +92,7 @@ export default function App() {
                   <div className="driver-info">
                     <span className="driver-name">{d.name}</span>
                     <span className="driver-vehicle">{d.vehicle || "Bike"}</span>
-                    <span className="driver-coords">
-                      {d.lat?.toFixed(4)}, {d.lng?.toFixed(4)}
-                    </span>
+                    <span className="driver-coords">{d.lat?.toFixed(4)}, {d.lng?.toFixed(4)}</span>
                   </div>
                   <div className="driver-right">
                     <div className={`status-dot ${d.status}`} title={d.status} />
@@ -101,44 +100,28 @@ export default function App() {
                   </div>
                 </div>
               ))}
-              {drivers.length === 0 && (
-                <div className="empty-state">Loading drivers...</div>
-              )}
+              {drivers.length === 0 && <div className="empty-state">Loading drivers...</div>}
             </div>
           </div>
         </aside>
 
-        {/* ── Content ── */}
         <main className="content-area">
-          {/* Stats Strip */}
           <div className="stats-strip">
             <div className="stat-pill">
               <span className="stat-icon">🚗</span>
-              <div>
-                <div className="stat-val">{drivers.length}</div>
-                <div className="stat-lbl">Total</div>
-              </div>
+              <div><div className="stat-val">{drivers.length}</div><div className="stat-lbl">Total</div></div>
             </div>
             <div className="stat-pill active">
               <span className="stat-icon">⚡</span>
-              <div>
-                <div className="stat-val">{activeDrivers}</div>
-                <div className="stat-lbl">Active</div>
-              </div>
+              <div><div className="stat-val">{activeDrivers}</div><div className="stat-lbl">Active</div></div>
             </div>
             <div className="stat-pill success">
               <span className="stat-icon">✅</span>
-              <div>
-                <div className="stat-val">{deliveredOrders}</div>
-                <div className="stat-lbl">Delivered</div>
-              </div>
+              <div><div className="stat-val">{deliveredOrders}</div><div className="stat-lbl">Delivered</div></div>
             </div>
             <div className="stat-pill warning">
               <span className="stat-icon">⏳</span>
-              <div>
-                <div className="stat-val">{pendingOrders}</div>
-                <div className="stat-lbl">Pending</div>
-              </div>
+              <div><div className="stat-val">{pendingOrders}</div><div className="stat-lbl">Pending</div></div>
             </div>
             <div className="stat-pill info">
               <span className="stat-icon">🎯</span>
@@ -151,24 +134,15 @@ export default function App() {
             </div>
           </div>
 
-          {/* Tab Content */}
           {activeTab === "map" && (
             <div className="map-section">
               <div className="section-header">
                 <h2 className="section-title">🗺️ Live Fleet Map</h2>
                 <div className="map-legend">
-                  <span className="legend-item">
-                    <span className="legend-dot active" />Drivers
-                  </span>
-                  <span className="legend-item">
-                    <span className="legend-dot order" />Orders
-                  </span>
-                  <span className="legend-item">
-                    <span className="legend-dot zone" />Zones
-                  </span>
-                  <span className="legend-item">
-                    <span className="legend-line" />Routes
-                  </span>
+                  <span className="legend-item"><span className="legend-dot active" />Drivers</span>
+                  <span className="legend-item"><span className="legend-dot order" />Orders</span>
+                  <span className="legend-item legend-hide"><span className="legend-dot zone" />Zones</span>
+                  <span className="legend-item legend-hide"><span className="legend-line" />Routes</span>
                 </div>
               </div>
               <div className="map-wrapper">
@@ -176,16 +150,31 @@ export default function App() {
               </div>
             </div>
           )}
-
-          {activeTab === "orders" && (
-            <OrdersPanel orders={orders} drivers={drivers} />
-          )}
-
-          {activeTab === "analytics" && (
-            <AnalyticsDashboard analytics={analytics} drivers={drivers} orders={orders} />
-          )}
+          {activeTab === "orders" && <OrdersPanel orders={orders} drivers={drivers} />}
+          {activeTab === "analytics" && <AnalyticsDashboard analytics={analytics} drivers={drivers} orders={orders} />}
         </main>
       </div>
+
+      {/* ── Mobile Bottom Nav ── */}
+      <nav className="bottom-nav">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            className={`bottom-nav-btn ${activeTab === tab.id ? "active" : ""}`}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            <span>{tab.icon}</span>
+            <span className="bottom-nav-label">{tab.label}</span>
+          </button>
+        ))}
+        <button
+          className={`bottom-nav-btn ${sidebarOpen ? "active" : ""}`}
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+        >
+          <span>🚗</span>
+          <span className="bottom-nav-label">Drivers</span>
+        </button>
+      </nav>
     </div>
   );
 }

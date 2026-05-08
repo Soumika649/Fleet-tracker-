@@ -164,7 +164,7 @@ REACT_APP_SOCKET_URL=http://localhost:5000
 - Authentication (JWT) for admin/driver roles
 
 ## 🎥 Demo Video
-[Link to demo recording]
+<video controls src="video2.mp4" title="Title"></video>
 
 ## Technologies
 - **Frontend**: React 18, Leaflet + react-leaflet, Socket.IO client, Axios

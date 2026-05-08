@@ -15,12 +15,26 @@ const app = express();
 const server = http.createServer(app);
 
 // ── Middleware ──
-app.use(cors({ origin: ["http://localhost:3000", "http://127.0.0.1:3000"] }));
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://fleet-tracker-frontend-hc2j.onrender.com"
+  ]
+}));
+
 app.use(express.json());
 
 // ── Socket.IO ──
 const io = new Server(server, {
-  cors: { origin: ["http://localhost:3000", "http://127.0.0.1:3000"], methods: ["GET", "POST"] },
+  cors: {
+    origin: [
+      "http://localhost:3000",
+      "http://127.0.0.1:3000",
+      "https://fleet-tracker-frontend-hc2j.onrender.com"
+    ],
+    methods: ["GET", "POST"]
+  },
   transports: ["websocket", "polling"],
 });
 
@@ -61,9 +75,12 @@ app.get("/health", (req, res) => {
 });
 
 // ── Start server ──
+// ── Start server ──
 const PORT = process.env.PORT || 5000;
+
 server.listen(PORT, () => {
-  console.log(`🚀 NexusFleet server running on http://localhost:${PORT}`);
+  console.log(`🚀 NexusFleet server running on port ${PORT}`);
 });
+
 
 module.exports = { app, io };
